@@ -1,12 +1,17 @@
+#if TARGET_OS_IPHONE && !TARGET_OS_SIMULATOR
+
 #import "RNWifi.h"
-#import <NetworkExtension/NetworkExtension.h>
+
 #import <SystemConfiguration/CaptiveNetwork.h>
 // If using official settings URL
 //#import <UIKit/UIKit.h>
+#import <NetworkExtension/NetworkExtension.h>
+
+
+
 
 @implementation WifiManager
 RCT_EXPORT_MODULE();
-
 RCT_EXPORT_METHOD(connectToSSID:(NSString*)ssid
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
@@ -92,6 +97,12 @@ RCT_REMAP_METHOD(getCurrentWifiSSID,
              @"settingsURL": @"App-Prefs:root=WIFI"
              };
 }
+@end
+#else
+#import "RNWifi.h"
+@implementation WifiManager
+RCT_EXPORT_MODULE();
 
 @end
+#endif
 
