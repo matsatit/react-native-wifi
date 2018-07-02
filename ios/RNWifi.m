@@ -3,7 +3,34 @@
 #import "RNWifi.h"
 @implementation WifiManager
 RCT_EXPORT_MODULE();
+RCT_EXPORT_METHOD(connectToSSID:(NSString*)ssid
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    reject(@"ios_error", @"Not supported on simulator", nil);
+}
 
+RCT_EXPORT_METHOD(connectToProtectedSSID:(NSString*)ssid
+                  withPassphrase:(NSString*)passphrase
+                  isWEP:(BOOL)isWEP
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+
+    reject(@"ios_error", @"Not supported on simulator", nil);
+}
+
+RCT_EXPORT_METHOD(disconnectFromSSID:(NSString*)ssid
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+
+    reject(@"ios_error", @"Not supported on simulator", nil);
+}
+
+RCT_REMAP_METHOD(getCurrentWifiSSID,
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+
+    reject(@"ios_error", @"Not supported on simulator", nil);
+}
 @end
 #else
 #import "RNWifi.h"
