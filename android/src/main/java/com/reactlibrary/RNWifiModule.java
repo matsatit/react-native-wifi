@@ -339,9 +339,15 @@ public class RNWifiModule extends ReactContextBaseJavaModule {
     // This method is similar to `loadWifiList` but it forcefully starts the wifi scanning on android and in the callback fetches the list
     @ReactMethod
     public void reScanAndLoadWifiList(Callback successCallback, Callback errorCallback) {
-        WifiReceiver receiverWifi = new WifiReceiver(wifi, successCallback, errorCallback);
-        getReactApplicationContext().getCurrentActivity().registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        wifi.startScan();
+        try {
+            WifiReceiver receiverWifi = new WifiReceiver(wifi, successCallback, errorCallback);
+            getReactApplicationContext().getCurrentActivity().registerReceiver(receiverWifi, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+            if (!wifi.startScan()) {
+                errorCallback.invoke("Unable to start scan");
+            }
+        } catch (Exception e) {
+            errorCallback.invoke(e.getMessage());
+        }
     }
 
     public static String longToIP(int longIp) {
