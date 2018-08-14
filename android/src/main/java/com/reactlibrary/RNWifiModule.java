@@ -238,28 +238,17 @@ public class RNWifiModule extends ReactContextBaseJavaModule {
         conf.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
         conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
         //Remove the existing configuration for this netwrok
-        List<WifiConfiguration> mWifiConfigList = wifi.getConfiguredNetworks();
+        final List<WifiConfiguration> mWifiConfigList = wifi.getConfiguredNetworks();
 
-        int updateNetwork = -1;
         String comparableSSID = ('"' + ssid + '"');
         for (WifiConfiguration wifiConfig : mWifiConfigList) {
             if (wifiConfig.SSID.equals(comparableSSID)) {
-
-                    updateNetwork = wifiConfig.networkId;
-
+                wifi.removeNetwork(wifiConfig.networkId);
+                break;
             }
         }
 
-        // If network not already in configured networks add new network
-        if (updateNetwork == -1) {
-            updateNetwork = wifi.addNetwork(conf);
-        }
-
-
-        if (updateNetwork == -1) {
-            return false;
-        }
-
+        final int updateNetwork = wifi.addNetwork(conf);
         wifi.disconnect();
         wifi.enableNetwork(updateNetwork, true);
         boolean conn  =    wifi.reconnect();
