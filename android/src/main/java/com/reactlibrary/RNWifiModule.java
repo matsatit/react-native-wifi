@@ -217,6 +217,7 @@ public class RNWifiModule extends ReactContextBaseJavaModule {
         String sanitizedPassword = "\"" + password + "\"";
         String Capabilities = result.capabilities;
 
+        boolean secure = true;
         if (Capabilities.contains("WPA2")) {
             conf.preSharedKey =sanitizedPassword;
         } else if (Capabilities.contains("WPA")) {
@@ -227,31 +228,44 @@ public class RNWifiModule extends ReactContextBaseJavaModule {
             conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
             conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
         } else {
+            secure = false;
             conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
         }
 
-        conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-        conf.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
-        conf.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-        conf.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-        conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-        conf.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-        conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+        if (secure) {
+            conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+            conf.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+            conf.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+            conf.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+            conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+            conf.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+            conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+        }
+
         //Remove the existing configuration for this netwrok
         final List<WifiConfiguration> mWifiConfigList = wifi.getConfiguredNetworks();
 
+        int newNetwork = -1;
         String comparableSSID = ('"' + ssid + '"');
         for (WifiConfiguration wifiConfig : mWifiConfigList) {
             if (wifiConfig.SSID.equals(comparableSSID)) {
-                wifi.removeNetwork(wifiConfig.networkId);
+                conf.networkId = wifiConfig.networkId;
+                newNetwork = wifi.updateNetwork(conf);
                 break;
             }
         }
 
-        final int updateNetwork = wifi.addNetwork(conf);
+        if (newNetwork == -1) {
+            newNetwork = wifi.addNetwork(conf);
+        }
+
+        if (newNetwork == -1) {
+            return false;
+        }
+
         wifi.disconnect();
-        wifi.enableNetwork(updateNetwork, true);
-        boolean conn  =    wifi.reconnect();
+        wifi.enableNetwork(newNetwork, true);
+        boolean conn = wifi.reconnect();
 
         return true;
     }
