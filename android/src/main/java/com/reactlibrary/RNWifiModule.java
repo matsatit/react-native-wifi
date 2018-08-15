@@ -187,6 +187,7 @@ public class RNWifiModule extends ReactContextBaseJavaModule {
             String resultString = "" + result.SSID;
             if (ssid.equals(resultString)) {
                 connected = connectTo(result, password, ssid, force);
+                break;
             }
         }
         if (connected) {
@@ -211,17 +212,16 @@ public class RNWifiModule extends ReactContextBaseJavaModule {
     //Method to connect to WIFI Network
     public Boolean connectTo(ScanResult result, String password, String ssid, boolean force) {
         //Make new configuration
-        WifiConfiguration conf = new WifiConfiguration();
+        final WifiConfiguration conf = new WifiConfiguration();
         conf.SSID = "\"" + ssid + "\"";
         conf.BSSID = result.BSSID;
-        String sanitizedPassword = "\"" + password + "\"";
-        String Capabilities = result.capabilities;
+        final String sanitizedPassword = "\"" + password + "\"";
+        final String Capabilities = result.capabilities;
 
         boolean secure = true;
-        if (Capabilities.contains("WPA2")) {
-            conf.preSharedKey =sanitizedPassword;
-        } else if (Capabilities.contains("WPA")) {
+        if (Capabilities.contains("WPA2") || Capabilities.contains("WPA")) {
             conf.preSharedKey = sanitizedPassword;
+            conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
         } else if (Capabilities.contains("WEP")) {
             conf.wepKeys[0] = sanitizedPassword;
             conf.wepTxKeyIndex = 0;
@@ -233,24 +233,22 @@ public class RNWifiModule extends ReactContextBaseJavaModule {
         }
 
         if (secure) {
-            conf.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-            conf.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
             conf.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+            conf.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+            conf.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
             conf.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-            conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
             conf.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+            conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+            conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
+            conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
             conf.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
         }
 
-        //Remove the existing configuration for this netwrok
-        final List<WifiConfiguration> mWifiConfigList = wifi.getConfiguredNetworks();
-
+        // Update the existing configuration for this netwrok
         int newNetwork = -1;
-        String comparableSSID = ('"' + ssid + '"');
-        for (WifiConfiguration wifiConfig : mWifiConfigList) {
-            if (wifiConfig.SSID.equals(comparableSSID)) {
-                conf.networkId = wifiConfig.networkId;
-                newNetwork = wifi.updateNetwork(conf);
+        for (WifiConfiguration wifiConfig : wifi.getConfiguredNetworks()) {
+            if (wifiConfig.SSID.equals(conf.SSID)) {
+                newNetwork = wifiConfig.networkId;
                 break;
             }
         }
@@ -263,10 +261,7 @@ public class RNWifiModule extends ReactContextBaseJavaModule {
             return false;
         }
 
-        wifi.disconnect();
         wifi.enableNetwork(newNetwork, true);
-        boolean conn = wifi.reconnect();
-
         return true;
     }
 
