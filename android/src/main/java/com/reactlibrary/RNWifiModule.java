@@ -263,6 +263,7 @@ public class RNWifiModule extends ReactContextBaseJavaModule {
             return false;
         }
 
+        wifi.saveConfiguration();
         wifi.enableNetwork(newNetwork, true);
         return true;
     }
