@@ -50,8 +50,6 @@ RCT_EXPORT_METHOD(connectToSSID:(NSString*)ssid
 
     if (@available(iOS 11.0, *)) {
         NEHotspotConfiguration* configuration = [[NEHotspotConfiguration alloc] initWithSSID:ssid];
-        configuration.joinOnce = true;
-
         [[NEHotspotConfigurationManager sharedManager] applyConfiguration:configuration completionHandler:^(NSError * _Nullable error) {
             if (error != nil) {
                 reject(@"nehotspot_error", @"Error while configuring WiFi", error);
@@ -73,8 +71,6 @@ RCT_EXPORT_METHOD(connectToProtectedSSID:(NSString*)ssid
 
     if (@available(iOS 11.0, *)) {
         NEHotspotConfiguration* configuration = [[NEHotspotConfiguration alloc] initWithSSID:ssid passphrase:passphrase isWEP:isWEP];
-        configuration.joinOnce = true;
-
         [[NEHotspotConfigurationManager sharedManager] applyConfiguration:configuration completionHandler:^(NSError * _Nullable error) {
             if (error != nil) {
                 reject(@"nehotspot_error", @"Error while configuring WiFi", error);
