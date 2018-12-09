@@ -17,15 +17,15 @@
   "author": "",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GamgeeNL/react-native-wifi.git"
+    "url": "git+https://github.com/GamgeeNL/react-native-wifi-gamgee.git"
   },
   "peerDependencies": {
     "react-native": ">=0.56"
   },
   "dependencies": {},
   "bugs": {
-    "url": "https://github.com/GamgeeNLreact-native-wifi/issues"
+    "url": "https://github.com/GamgeeNLreact-native-wifi-gamgee/issues"
   },
-  "homepage": "https://github.com/GamgeeNL/react-native-wifi#readme",
+  "homepage": "https://github.com/GamgeeNL/react-native-wifi-gamgee#readme",
   "license": "ISC"
 }
