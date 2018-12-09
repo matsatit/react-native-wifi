@@ -1,6 +1,8 @@
 
 # react-native-wifi
 
+Based on react-native-wifi by [blackdeve](https://github.com/blackdeve/react-native-wifi)
+
 ## Getting started
 
 `$ npm install react-native-wifi --save`
