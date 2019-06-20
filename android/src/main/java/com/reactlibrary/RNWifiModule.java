@@ -4,7 +4,6 @@ import com.facebook.react.uimanager.*;
 import com.facebook.react.bridge.*;
 import com.facebook.systrace.Systrace;
 import com.facebook.systrace.SystraceMessage;
-// import com.facebook.react.LifecycleState;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactRootView;
 import com.facebook.react.modules.core.DefaultHardwareBackBtnHandler;
@@ -248,9 +247,12 @@ public class RNWifiModule extends ReactContextBaseJavaModule {
         int newNetwork = -1;
         for (WifiConfiguration wifiConfig : wifi.getConfiguredNetworks()) {
             if (wifiConfig.SSID.equals(conf.SSID)) {
-                conf.networkId = wifiConfig.networkId;
-                wifi.updateNetwork(conf);
-                newNetwork = wifiConfig.networkId;
+                if (!wifi.removeNetwork(wifiConfig.networkId)) {
+                    conf.priority = 10000; 
+                    conf.networkId = wifiConfig.networkId;
+                    wifi.updateNetwork(conf);
+                    newNetwork = wifiConfig.networkId;
+                }
                 break;
             }
         }
@@ -263,7 +265,6 @@ public class RNWifiModule extends ReactContextBaseJavaModule {
             return false;
         }
 
-        wifi.saveConfiguration();
         wifi.enableNetwork(newNetwork, true);
         return true;
     }
