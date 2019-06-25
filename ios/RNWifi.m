@@ -1,5 +1,39 @@
+#include "TargetConditionals.h"
+#if TARGET_IPHONE_SIMULATOR
 #import "RNWifi.h"
-#import <NetworkExtension/NetworkExtension.h>
+@implementation WifiManager
+RCT_EXPORT_MODULE();
+RCT_EXPORT_METHOD(connectToSSID:(NSString*)ssid
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+    reject(@"ios_error", @"Not supported on simulator", nil);
+}
+
+RCT_EXPORT_METHOD(connectToProtectedSSID:(NSString*)ssid
+                  withPassphrase:(NSString*)passphrase
+                  isWEP:(BOOL)isWEP
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+
+    reject(@"ios_error", @"Not supported on simulator", nil);
+}
+
+RCT_EXPORT_METHOD(disconnectFromSSID:(NSString*)ssid
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+
+    reject(@"ios_error", @"Not supported on simulator", nil);
+}
+
+RCT_REMAP_METHOD(getCurrentWifiSSID,
+                 resolver:(RCTPromiseResolveBlock)resolve
+                 rejecter:(RCTPromiseRejectBlock)reject) {
+
+    reject(@"ios_error", @"Not supported on simulator", nil);
+}
+@end
+#else
+#import "RNWifi.h"
 #import <SystemConfiguration/CaptiveNetwork.h>
 
 #import <net/if.h>
@@ -14,19 +48,20 @@
 #import <arpa/inet.h>
 #import <SystemConfiguration/CaptiveNetwork.h>
 // If using official settings URL
+#import <NetworkExtension/NetworkExtension.h>
 #import <UIKit/UIKit.h>
+
+
+
 
 @implementation WifiManager
 RCT_EXPORT_MODULE();
-
 RCT_EXPORT_METHOD(connectToSSID:(NSString*)ssid
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     if (@available(iOS 11.0, *)) {
         NEHotspotConfiguration* configuration = [[NEHotspotConfiguration alloc] initWithSSID:ssid];
-        configuration.joinOnce = true;
-        
         [[NEHotspotConfigurationManager sharedManager] applyConfiguration:configuration completionHandler:^(NSError * _Nullable error) {
             if (error != nil) {
                 reject(@"nehotspot_error", @"Error while configuring WiFi", error);
@@ -34,7 +69,7 @@ RCT_EXPORT_METHOD(connectToSSID:(NSString*)ssid
                 resolve(nil);
             }
         }];
-        
+
     } else {
         reject(@"ios_error", @"Not supported in iOS<11.0", nil);
     }
@@ -45,11 +80,9 @@ RCT_EXPORT_METHOD(connectToProtectedSSID:(NSString*)ssid
                   isWEP:(BOOL)isWEP
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     if (@available(iOS 11.0, *)) {
         NEHotspotConfiguration* configuration = [[NEHotspotConfiguration alloc] initWithSSID:ssid passphrase:passphrase isWEP:isWEP];
-        configuration.joinOnce = true;
-        
         [[NEHotspotConfigurationManager sharedManager] applyConfiguration:configuration completionHandler:^(NSError * _Nullable error) {
             if (error != nil) {
                 reject(@"nehotspot_error", @"Error while configuring WiFi", error);
@@ -57,7 +90,7 @@ RCT_EXPORT_METHOD(connectToProtectedSSID:(NSString*)ssid
                 resolve(nil);
             }
         }];
-        
+
     } else {
         reject(@"ios_error", @"Not supported in iOS<11.0", nil);
     }
@@ -66,7 +99,7 @@ RCT_EXPORT_METHOD(connectToProtectedSSID:(NSString*)ssid
 RCT_EXPORT_METHOD(disconnectFromSSID:(NSString*)ssid
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
-    
+
     if (@available(iOS 11.0, *)) {
         [[NEHotspotConfigurationManager sharedManager] getConfiguredSSIDsWithCompletionHandler:^(NSArray<NSString *> *ssids) {
             if (ssids != nil && [ssids indexOfObject:ssid] != NSNotFound) {
@@ -77,7 +110,7 @@ RCT_EXPORT_METHOD(disconnectFromSSID:(NSString*)ssid
     } else {
         reject(@"ios_error", @"Not supported in iOS<11.0", nil);
     }
-    
+
 }
 
 RCT_REMAP_METHOD(getCurrentWifiSSID,
@@ -171,3 +204,4 @@ RCT_REMAP_METHOD(getCurrentWifiSSID,
 
 @end
 
+#endif
