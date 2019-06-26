@@ -165,6 +165,11 @@ RCT_REMAP_METHOD(getCurrentWifiSSID,
     return [cset countForObject:@"awdl0"] > 1&&[self wiFiIPAddress].length > 0 ? YES : NO;
 }
 
++ (BOOL)requiresMainQueueSetup
+{
+    return YES;
+}
+
 - (NSString *)wiFiIPAddress {
     @try {
         NSString *ipAddress;
